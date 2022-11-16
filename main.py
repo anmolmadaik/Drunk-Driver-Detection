@@ -5,7 +5,7 @@ import time
 import math
 
 def distance(x1, y1, x2, y2):
-    print("x1 :" + str(x1) + " y1 :" + str(y1) + " x2 :" + str(x2) + " y2 :" + str(y2) )
+    #print("x1 :" + str(x1) + " y1 :" + str(y1) + " x2 :" + str(x2) + " y2 :" + str(y2) )
     x = (x1-x2) ** 2
     y = (y1-y2) ** 2
     d = (x + y) ** .5
@@ -28,17 +28,17 @@ def ear(f,pos):
     b2y = f.part(40 + i).y
     b1x = f.part(41 + i).x
     b1y = f.part(41 + i).y
-    cv.line(frame, (s1x, s1y), (u1x, u1y), (0, 255, 0), 2)
-    cv.line(frame, (u1x, u1y), (u2x, u2y), (0, 255, 0), 2)
-    cv.line(frame, (u2x, u2y), (s2x, s2y), (0, 255, 0), 2)
-    cv.line(frame, (s2x, s2y), (b2x, b2y), (0, 255, 0), 2)
-    cv.line(frame, (b2x, b2y), (b1x, b1y), (0, 255, 0), 2)
-    cv.line(frame, (b1x, b1y), (s1x, s1y), (0, 255, 0), 2)
+    # cv.line(frame, (s1x, s1y), (u1x, u1y), (0, 255, 0), 2)
+    # cv.line(frame, (u1x, u1y), (u2x, u2y), (0, 255, 0), 2)
+    # cv.line(frame, (u2x, u2y), (s2x, s2y), (0, 255, 0), 2)
+    # cv.line(frame, (s2x, s2y), (b2x, b2y), (0, 255, 0), 2)
+    # cv.line(frame, (b2x, b2y), (b1x, b1y), (0, 255, 0), 2)
+    # cv.line(frame, (b1x, b1y), (s1x, s1y), (0, 255, 0), 2)
     vd1 = distance(u1x, u1y, b1x, b1y)
     vd2 = distance(u2x, u2y, b2x, b2y)
     hd = distance(s1x, s1y, s2x, s2y)
     ear = (((vd1 + vd2) / 2) / hd)
-    print(ear)
+    #print(ear)
     return ear
 
 def eye(frame, lm, pos):
@@ -53,8 +53,8 @@ def eye(frame, lm, pos):
     eyes = cv.cvtColor(eyes, cv.COLOR_BGR2GRAY)
     _, eyes = cv.threshold(eyes, 250, 255, cv.THRESH_BINARY)
     contours, hierarchy = cv.findContours(eyes, cv.RETR_TREE, cv.CHAIN_APPROX_NONE)
-    cv.drawContours(frame, contours, -1, (0, 255, 0), 2, lineType=cv.LINE_AA)
-    cv.imshow(pos + "Eyes", eyes)
+    # cv.drawContours(frame, contours, -1, (0, 255, 0), 2, lineType=cv.LINE_AA)
+    # cv.imshow(pos + "Eyes", eyes)
     return cv.boundingRect(contours[0])
 
 def meta(control, blinkno, elapsed, blinkrate, diff, xold, yold, xnew, ynew, t1, t2):
@@ -89,16 +89,16 @@ while True:
         continue
     faces = face_det(frame)
     if(len(faces) == 0):
-        cv.putText(frame, "NO FACE", (0,100), cv.FONT_HERSHEY_SIMPLEX, 4, (255,255,255), 3)
-        cv.putText(frame, "DETECTED", (0, 225), cv.FONT_HERSHEY_SIMPLEX, 4, (255, 255, 255), 3)
+        cv.putText(frame, "NO FACE", (0,100), cv.FONT_HERSHEY_SIMPLEX, 3, (255,255,255), 3)
+        cv.putText(frame, "DETECTED", (0, 225), cv.FONT_HERSHEY_SIMPLEX, 3, (255, 255, 255), 3)
     for f in faces:
         xnew = ynew = 0
         lm = landmarks(frame, f)
         xnew = xnew + lm.part(27).x
         ynew = ynew + lm.part(27).y
         # for i in range(68):
-        #     cv.putText(frame, str(i), (lm.part(i).x, lm.part(i).y), cv.FONT_HERSHEY_SIMPLEX, .5, (0, 255, 0), 1)
-        #     cv.circle(frame, (lm.part(i).x, lm.part(i).y), 1, (0, 255, 0), 1)
+            # cv.putText(frame, str(i), (lm.part(i).x, lm.part(i).y), cv.FONT_HERSHEY_SIMPLEX, .5, (0, 255, 0), 1)
+            # cv.circle(frame, (lm.part(i).x, lm.part(i).y), 1, (0, 255, 0), 1)
         # cv.circle(frame, (xnew, ynew), 1, (0, 255, 0), 1)
         x1 = f.left()
         y1 = f.top()
@@ -107,11 +107,11 @@ while True:
         lear = ear(lm, "left")
         rear = ear(lm, "right")
         eyear = (lear+rear)/2
-        if eyear < 0.28:
+        if eyear < 0.26:
             control[0] = 1
         else:
             control[0] = 0
-        if eyear < .15:
+        if eyear < .18:
             blinkno = blinkno + 1
         elapsed = time.perf_counter() - start
         if elapsed >= 10:
@@ -137,11 +137,11 @@ while True:
             decision = np.sum(control)
         # meta(control, blinkno, elapsed, blinkrate, diff, xold, yold, xnew, ynew, t1, t2
         if decision > 1.5:
-            cv.putText(frame, "DRUNK", (x1, y2), cv.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 3)
+            cv.putText(frame, "DRUNK", (x1, y2+50), cv.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 3)
             frame = cv.rectangle(frame, (x1 - 20, y1 - 20), (x2 + 20, y2 + 20), (0, 0, 255), 3)
         else:
             frame = cv.rectangle(frame, (x1 - 20, y1 - 20), (x2 + 20, y2 + 20), (0, 255, 0), 3)
-            cv.putText(frame, "NORMAL", (x1, y2), cv.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 3)
+            cv.putText(frame, "NORMAL", (x1, y2+50), cv.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 3)
     cv.imshow("Video", frame)
     if cv.waitKey(1) == 27:
         break
